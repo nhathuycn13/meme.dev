@@ -24,7 +24,7 @@ class TypeController extends Controller
      */
     public function index()
     {
-        return $this->type->getAll();
+        return $this->type->paginate(request('perpage'));
     }
 
     /**
@@ -45,12 +45,21 @@ class TypeController extends Controller
      */
     public function store(Request $request)
     {
-//        return $request->data;
+        $messages = [
+            'name.required' => 'Bạn chưa nhập tên',
+            'code.required' => 'Bạn chưa nhập mã hàng',
+            'code.size' => 'Mã loại sản phẩm phải đúng 3 ký tự',
+            'code.unique' => 'Mã loại sản phẩm đã tồn tại',
+        ];
         $this->validate($request, [
-            'data.name' => 'required',
-            'data.code' => 'unique:types,code'
+            'name' => 'required',
+            'code' => 'required|size:3|unique:manufacturers,code',
+        ], $messages);
+        return $this->type->create([
+            'name' => $request->name,
+            'code' => $request->code,
+            'description' => $request->description,
         ]);
-        return $this->type->create($request->data);
     }
 
     /**

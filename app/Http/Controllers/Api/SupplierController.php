@@ -21,9 +21,10 @@ class SupplierController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->supplier->getAll();
+        $perpage = $request->perpage;
+        return $this->supplier->paginate($perpage);
     }
 
     /**
@@ -43,16 +44,29 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'name.required' => 'Bạn chưa nhập tên',
+            'tax_id.required' => 'Bạn chưa nhập mã số thuế',
+            'tax_id.digits' => 'Mã số thuế không đúng',
+            'email.email' => 'Email số thuế không đúng',
+            'company_name.required' => 'Bạn chưa nhập tên công ty',
+        ];
         $this->validate($request, [
-            'data.name' => 'required',
-            'data.tax_id' => 'required | digits:10',
-            'data.email' => 'email',
-            'data.company_name' => 'required',
-            'data.phone' => 'numeric',
-            'data.mobile' => 'numeric',
-
+            'name' => 'required',
+            'tax_id' => 'required|digits:10',
+            'email' => 'email',
+            'company_name' => 'required',
+        ], $messages);
+        return $this->supplier->create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'mobile' => $request->mobile,
+            'email' => $request->email,
+            'address' => $request->address,
+            'tax_id' => $request->tax_id,
+            'description' => $request->description,
+            'company_name' => $request->company_name,
         ]);
-        return $this->supplier->create($request->data);
     }
 
     /**
@@ -86,15 +100,19 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $messages = [
+            'name.required' => 'Bạn chưa nhập tên',
+            'tax_id.required' => 'Bạn chưa nhập mã số thuế',
+            'tax_id.digits' => 'Mã số thuế không đúng',
+            'email.email' => 'Email số thuế không đúng',
+            'company_name.required' => 'Bạn chưa nhập tên công ty',
+        ];
         $this->validate($request, [
-            'data.name' => 'required',
-            'data.tax_id' => 'required | digits:10',
-            'data.email' => 'email',
-            'data.company_name' => 'required',
-            'data.phone' => 'numeric',
-            'data.mobile' => 'numeric',
-
-        ]);
+            'name' => 'required',
+            'tax_id' => 'required | digits:10',
+            'email' => 'email',
+            'company_name' => 'required',
+        ], $messages);
         return $this->supplier->update($id, $request->data);
     }
 

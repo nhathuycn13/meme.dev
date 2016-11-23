@@ -23,7 +23,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        return $this->customer->getAll();
+        return $this->customer->paginate(request('perpage'));
     }
 
     /**
@@ -44,10 +44,18 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            '.' => '',
+            '.' => '',
+            '.' => '',
+            '.' => '',
+            '.' => '',
+            '.' => '',
+        ];
         $this->validate($request, [
 
-        ]);
-        return $this->customer->create($request->data);
+        ], $messages);
+        return $this->customer->create($request->toArray());
     }
 
     /**

@@ -50,10 +50,14 @@ class QuoteController extends Controller
     {
 
         $rules = [
-
+            'customer_id' => 'required',
+            'payment_type_id' => 'required',
+            'expirated_at' => '',
+            'shipping' => 'numeric|min:0',
+            'rows' => 'min:0'
         ];
         $message = [
-
+            'customer_id.required' => 'abc',
         ];
         $this->validate($request, $rules, $message);
         return $this->quote->create($request);
@@ -78,7 +82,7 @@ class QuoteController extends Controller
      */
     public function edit($id)
     {
-        
+        return $this->quote->printMe($id);
     }
 
     /**
@@ -106,7 +110,10 @@ class QuoteController extends Controller
             ])) return OrderType::find(3);
         }
         if ($request->sendMail){
-            return $this->quote->sendMail($id, 1);
+            return $this->quote->sendMail($id, 1, $request->data);
+        }
+        if ($request->printMe){
+            return $this->quote->printMe($id);
         }
     }
 

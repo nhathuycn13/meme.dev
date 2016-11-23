@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repository\Manufacturer\ManufacturerRepo;
+use App\Repository\Profile\ProfileRepo;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-class ManufacturerController extends Controller
+class ProfileController extends Controller
 {
-    private $manufacturer;
+    private $profile;
 
-    public function __construct(ManufacturerRepo $repo)
-    {
-        $this->manufacturer = $repo;
-    }
-    public function searchMe($query)
-    {
-        return $query;
-    }
+    /**
+     * @inheritDoc
+     */
+    public function __construct(ProfileRepo $repo) { $this->profile = $repo; }
+
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $perpage = $request->perpage;
-        return $this->manufacturer->paginate($perpage);
+        return $this->profile->getProfile(request('id'));
     }
 
     /**
@@ -38,6 +35,7 @@ class ManufacturerController extends Controller
      */
     public function create()
     {
+        //
     }
 
     /**
@@ -48,22 +46,7 @@ class ManufacturerController extends Controller
      */
     public function store(Request $request)
     {
-        return $request;
-        $messages = [
-            'name.required' => 'Bạn chưa nhập tên',
-            'code.required' => 'Bạn chưa nhập mã hàng',
-            'code.size' => 'Mã nhà sản xuất phải đúng 3 ký tự',
-            'code.unique' => 'Mã nhà sản xuất đã tồn tại',
-        ];
-        $this->validate($request, [
-            'name' => 'required',
-            'code' => 'required|size:3|unique:manufacturers,code',
-        ], $messages);
-        return $this->manufacturer->create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-        ]);
+
     }
 
     /**
@@ -74,7 +57,7 @@ class ManufacturerController extends Controller
      */
     public function show($id)
     {
-        return $this->manufacturer->get($id);
+        //
     }
 
     /**
@@ -97,8 +80,15 @@ class ManufacturerController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $rules = [
 
-        return $this->manufacturer->update($id, $request->data);
+        ];
+        $messages = [
+
+        ];
+        $this->validate($request, $rules, $messages);
+
+        return $this->profile->updateProfile($id, $request->toArray());
     }
 
     /**
@@ -109,8 +99,6 @@ class ManufacturerController extends Controller
      */
     public function destroy($id)
     {
-        return $this->manufacturer->delete($id);
+        //
     }
-
-
 }

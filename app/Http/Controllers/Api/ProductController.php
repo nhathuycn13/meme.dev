@@ -22,9 +22,9 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->product->getAll();
+        return $this->product->paginate($request->perpage);
     }
 
     /**
@@ -44,10 +44,21 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'name.required' => 'Bạn chưa nhập tên',
+            'code.required' => 'Bạn chưa nhập mã hàng',
+            'type_id.required' => 'Bạn chưa chọn loại',
+            'manufacturer_id.required' => 'Bạn chưa chọn nhà sản xuất',
+//            'thumbnail.image' => 'Ảnh không đúng',
+        ];
         $this->validate($request, [
-
-        ]);
-        return $this->product->create($request->data);
+            'name' => 'required',
+            'code' => 'required',
+            'type_id' => 'required',
+            'manufacturer_id' => 'required',
+//            'thumbnail' => 'image',
+        ], $messages);
+        return $this->product->create($request->toArray());
     }
 
     /**
@@ -96,5 +107,10 @@ class ProductController extends Controller
     public function destroy($id)
     {
         return $this->product->delete($id);
+    }
+
+    public function search(Request $request)
+    {
+        return $this->product->search($request->keyword);
     }
 }
