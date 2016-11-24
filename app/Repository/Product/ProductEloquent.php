@@ -29,6 +29,12 @@ class ProductEloquent implements ProductRepo
         return $this->eloquent->with(['type', 'manufacturer'])->get($column);
     }
 
+    public function paginate($perpage = 20, $column = ['*'])
+    {
+        return $this->eloquent->with(['type', 'manufacturer'])->paginate($perpage, $column);
+    }
+
+
     /**
      * @param $attributes
      * @return mixed
@@ -65,7 +71,12 @@ class ProductEloquent implements ProductRepo
      */
     public function get($id)
     {
-        return $this->eloquent->findOrFail($id);
+        return $this->eloquent->with(['type', 'manufacturer'])->findOrFail($id);
+    }
+
+    public function search($keyword)
+    {
+        return $this->eloquent->search($keyword)->get();
     }
 
 }

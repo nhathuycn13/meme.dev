@@ -16,10 +16,6 @@ class ManufacturerController extends Controller
     {
         $this->manufacturer = $repo;
     }
-    public function searchMe($query)
-    {
-        return $query;
-    }
     /**
      * Display a listing of the resource.
      *
@@ -48,22 +44,19 @@ class ManufacturerController extends Controller
      */
     public function store(Request $request)
     {
-        return $request;
+        //return $request;
         $messages = [
             'name.required' => 'Bạn chưa nhập tên',
+            'name.unique' => 'Mã nhà sản xuất đã tồn tại',
             'code.required' => 'Bạn chưa nhập mã hàng',
             'code.size' => 'Mã nhà sản xuất phải đúng 3 ký tự',
             'code.unique' => 'Mã nhà sản xuất đã tồn tại',
         ];
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|unique:manufacturers,name',
             'code' => 'required|size:3|unique:manufacturers,code',
         ], $messages);
-        return $this->manufacturer->create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-        ]);
+        return $this->manufacturer->create($request->toArray());
     }
 
     /**
@@ -109,7 +102,8 @@ class ManufacturerController extends Controller
      */
     public function destroy($id)
     {
-        return $this->manufacturer->delete($id);
+
+        return $id == 0 ? $this->manufacturer->delete(request('ids')) :  $this->manufacturer->delete($id);
     }
 
 

@@ -12,6 +12,7 @@ namespace App\Repository\Customer;
 interface CustomerRepo
 {
     public function getAll($column = array('*'));
+    public function paginate($perpage, $column = array('*'));
     public function create($attributes);
     public function update($id, $attribute);
     public function delete($id);

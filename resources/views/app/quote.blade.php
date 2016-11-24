@@ -1,6 +1,6 @@
 @extends('layout.master')
 
-@section('title', 'Undefined Management')
+@section('title', 'Báo giá')
 
 @section('content')
 <section class="content-header">

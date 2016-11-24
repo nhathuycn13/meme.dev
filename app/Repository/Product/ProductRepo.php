@@ -12,8 +12,10 @@ namespace App\Repository\Product;
 interface ProductRepo
 {
     public function getAll($column = array('*'));
+    public function paginate($perpage = 20, $column = array('*'));
     public function create($attributes);
     public function update($id, $attribute);
     public function delete($id);
     public function get($id);
+    public function search($keyword);
 }

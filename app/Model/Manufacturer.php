@@ -17,4 +17,9 @@ class Manufacturer extends Model
         $this->attributes['name'] = ($value);
         $this->attributes['slug'] = str_slug($value);
     }
+
+    public function types()
+    {
+        return $this->belongsToMany(Type::class);
+    }
 }

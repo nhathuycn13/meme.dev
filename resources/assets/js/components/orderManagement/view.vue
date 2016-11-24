@@ -6,8 +6,14 @@
             <div class="row">
                 <div class="col-xs-12">
                     <h2 class="page-header">
-                        Báo Gía
-                        <div class="pull-right"><i class="fa fa-globe"></i> In1, Inc.</div>
+                        Chi tiết đơn hàng #SO{{ getId(me.id) }}
+                        <div class="pull-right">
+                            <i class="fa fa-globe"></i> In1, Inc.
+                            <div class="btn-group">
+                                <router-link v-if="previousId" :to="{ name:'view', params : { id : previousId} }" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></router-link>
+                                <router-link v-if="nextId" :to="{ name:'view', params : { id : nextId} }" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></router-link>
+                            </div>
+                        </div>
                     </h2>
                 </div>
                 <!-- /.col -->
@@ -31,7 +37,7 @@
                         <dt>Phone</dt>
                         <dd>{{ customer.phone }}</dd>
                         <dt>Email</dt>
-                        <dd>{{ customer.phone }}</dd>
+                        <dd><a :href="'mailto:' + customer.email">{{ customer.email }}</a></dd>
                     </dl>
                 </div>
             </div>
@@ -67,7 +73,7 @@
                                             {{index + 1}}
                                         </td>
                                         <td>
-                                            {{ getProduct(item.product_id) }}
+                                            {{ item.product.name }}
                                         </td>
                                         <td>
                                             {{ item.qty }}
@@ -152,20 +158,20 @@
                     <div class="table-responsive">
                         <table class="table">
                             <!--<tr>-->
-                                <!--<th style="width:50%">Tổng cộng:</th>-->
-                                <!--<td>{{ subtotal }} VND</td>-->
+                            <!--<th style="width:50%">Tổng cộng:</th>-->
+                            <!--<td>{{ subtotal }} VND</td>-->
                             <!--</tr>-->
                             <!--<tr>-->
-                                <!--<th>Thuế ({{ me.tax }}%):</th>-->
-                                <!--<td>{{ toTax }} VND</td>-->
+                            <!--<th>Thuế ({{ me.tax }}%):</th>-->
+                            <!--<td>{{ toTax }} VND</td>-->
                             <!--</tr>-->
                             <!--<tr>-->
-                                <!--<th>Phí vận chuyển:</th>-->
-                                <!--<td>{{ me.shipping }} VND</td>-->
+                            <!--<th>Phí vận chuyển:</th>-->
+                            <!--<td>{{ me.shipping }} VND</td>-->
                             <!--</tr>-->
                             <!--<tr>-->
-                                <!--<th>Tất cả:</th>-->
-                                <!--<td>{{ toTotal }} VND</td>-->
+                            <!--<th>Tất cả:</th>-->
+                            <!--<td>{{ toTotal }} VND</td>-->
                             <!--</tr>-->
                         </table>
                     </div>
@@ -180,13 +186,10 @@
                     <router-link :to="{ name: 'list' }" class="btn btn-default"><i class="fa fa-mail-reply"></i> Quay Lại</router-link>
                     <button v-if="type.id != 1" @click="setToCancel" class="btn btn-danger"><i class="fa fa-trash-o"></i> Hủy</button>
                     <router-link :to="{ name: 'update', params : {id : $route.params.id} }" class="btn btn-info"><i class="fa fa-edit"></i> Chỉnh Sửa</router-link>
-                    <button v-if="type.id != 3" class="btn btn-success" @click="setToQuote">Chuyển Thành bao gia</button>
+                    <button v-if="type.id != 2" class="btn btn-success" @click="setToQuote">Chuyển Thành bao gia</button>
                     <button v-if="type.id != 3" class="btn btn-success" @click="setToOrder">Chuyển Thành đơn hàng</button>
-                    <button type="button" class="btn btn-primary pull-right" style="margin-right: 5px;">
-                        <i class="fa fa-download"></i> Tải Về
-                    </button>
-                    <button type="button" class="btn btn-default pull-right"><i class="fa fa-print"></i> In</button>
-                    <button class="btn btn-default pull-right"><i class="fa fa-paper-plane"></i> Send Mail</button>
+                    <button @click="printMe" type="button" class="btn btn-default pull-right"><i class="fa fa-print"></i> In</button>
+                    <router-link :to="{ name: 'sendMail', params : {id : $route.params.id} }" class="btn btn-info pull-right"><i class="fa fa-envelope-o"></i> Send Mail</router-link>
                 </div>
             </div>
         </section>
@@ -203,6 +206,9 @@
                 ctpnk : [],
                 customer : '',
                 list_products : [],
+                isSendingMail : false,
+                nextId : null,
+                previousId : null,
             }
         },
         created : function () {
@@ -225,15 +231,17 @@
         methods : {
             fetchData : function () {
                 this.$http.get('api/quote/' + this.$route.params.id).then(function (response) {
+//                    console.log(response.body)
                     this.me = response.body.data;
                     this.user = this.me.user;
                     this.type = this.me.type;
                     this.list_products = this.me.products;
                     this.ctpnk = this.me.order_detail;
                     this.customer = this.me.customer;
-                    //next and previous id
-                    this.nextId = '';
-                    this.previousId = '';
+
+                    // next and previous id
+                    this.nextId = response.body.nextId;
+                    this.previousId = response.body.previousId;
                 }, function (response) {
                     if (response.status == 404)
                         ;
@@ -247,11 +255,7 @@
                 var tax = result/100 * item.tax;
                 return result + tax;
             },
-            getProduct : function (_id) {
-                return this.me.products.filter(function (product) {
-                    return product.id === _id;
-                })[0].name;
-            },
+
             setToCancel : function () {
                 this.$http.put('api/quote/' + this.$route.params.id, {'setToCancel' : true}).then(function (response) {
                     this.notify('Success!', 'success', 'Updated!!!');
@@ -279,6 +283,14 @@
             getId : function (n) {
                 n = n + '';
                 return n.length >= 5 ? n : new Array(5 - n.length + 1).join('0') + n;
+            },
+            printMe : function () {
+                this.$http.put('api/quote/' + this.$route.params.id, {'printMe' : true}).then(function (response) {
+                    window.location.href = 'api/quote/' + this.$route.params.id + '/edit';
+                }, function (response) {
+                    console.log(response.body);
+                    this.notify('Error!', 'danger', 'Error occur while sending quote mail, please try again.');
+                });
             },
             notify : function(title, type, text) {
                 $.notify({

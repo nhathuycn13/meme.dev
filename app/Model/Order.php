@@ -35,10 +35,12 @@ class Order extends Model
 
     public function nextId($id)
     {
-        return static::where('id', '>', $id)->first()->id;
+        $next = static::where('id', '>', $id)->first();
+        return $next == null ? null : $next->id;
     }
     public function previoustId($id)
     {
-        return static::where('id', '<', $id)->first()->id;
+        $next = static::where('id', '<', $id)->first();
+        return $next == null ? null : $next->id;
     }
 }

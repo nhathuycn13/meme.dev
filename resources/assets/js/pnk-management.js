@@ -4,6 +4,10 @@
 require('./bootstrap');
 var VueRouter = require('vue-router');
 Vue.use(VueRouter);
+
+//active class sidebar
+document.getElementById('warehouse-management').className += " active";
+document.getElementById('nk').className += " active";
 const router = new VueRouter({
     routes : [
         {path : '/', name : 'list', component: require('./components/pnkManagement/list.vue')},

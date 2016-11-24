@@ -16,4 +16,9 @@ class Type extends Model
     {
         $this->attributes['code'] = strtoupper($value);
     }
+
+    public function manufacturers()
+    {
+        return $this->belongsToMany(Manufacturer::class);
+    }
 }

@@ -55,11 +55,7 @@ class TypeController extends Controller
             'name' => 'required',
             'code' => 'required|size:3|unique:manufacturers,code',
         ], $messages);
-        return $this->type->create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-        ]);
+        return $this->type->create($request->toArray());
     }
 
     /**

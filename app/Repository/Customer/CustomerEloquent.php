@@ -68,4 +68,9 @@ class CustomerEloquent implements CustomerRepo
         return $this->eloquent->findOrFail($id);
     }
 
+    public function paginate($perpage, $column = ['*'])
+    {
+        return $this->eloquent->paginate($perpage, $column);
+    }
+
 }

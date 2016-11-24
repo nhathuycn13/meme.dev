@@ -17,5 +17,6 @@ interface OrderRepo
     public function delete($id);
     public function get($id);
 
-    public function sendMail($id, $type);
+    public function sendMail($id, $type, $customer);
+    public function printMe($id, $type = 0);
 }

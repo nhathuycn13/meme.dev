@@ -57,16 +57,7 @@ class SupplierController extends Controller
             'email' => 'email',
             'company_name' => 'required',
         ], $messages);
-        return $this->supplier->create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'mobile' => $request->mobile,
-            'email' => $request->email,
-            'address' => $request->address,
-            'tax_id' => $request->tax_id,
-            'description' => $request->description,
-            'company_name' => $request->company_name,
-        ]);
+        return $this->supplier->create($request->toArray());
     }
 
     /**

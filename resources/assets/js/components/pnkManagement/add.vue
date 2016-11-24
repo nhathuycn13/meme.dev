@@ -51,8 +51,9 @@
                             </td>
                             <td>
                                 <!--<selectMe :products="products" v-model="item.selected"></selectMe>-->
-                                <select v-model="item.product_id" class="form-control" style="width : 100%;">
-                                    <option v-for="option in products" v-bind:value="option.id">{{option.name}}</option>
+                                <select class="form-control" style="width : 100%;">
+                                    <option value="-1"></option>
+                                    <option v-for="option in products.data" :value="option.id">{{option.name}}</option>
                                 </select>
                             </td>
                             <td>

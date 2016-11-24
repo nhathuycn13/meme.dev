@@ -1,16 +1,7 @@
 <?php
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| This file is where you may define all of the routes that are handled
-| by your application. Just tell Laravel the URIs it should respond
-| to using a Closure or controller method. Build something great!
-|
-*/
-
+Route::get('/', function (){
+    return redirect()->route('getDashboard');
+});
 Route::get('/login', ['as' => 'getLogin', 'uses' => 'AuthController@getLogin']);
 Route::post('/login', ['as' => 'postLogin', 'uses' => 'AuthController@postLogin']);
 Route::get('/logout', ['as' => 'postLogout', 'uses' => 'AuthController@postLogout']);
@@ -20,10 +11,16 @@ Route::get('/logout', ['as' => 'postLogout', 'uses' => 'AuthController@postLogou
 Route::group(['middleware' => 'auth'], function (){
     Route::group(['prefix' => 'api', 'namespace' => 'Api'], function (){
         Route::resource('role', 'RoleController');
+
+        Route::get('type/search/{query}', 'SearchController@searchType');
+        Route::get('manufacturer/search/{query}', 'SearchController@searchManufacturer');
+
+
         Route::resource('type', 'TypeController');
         Route::resource('manufacturer', 'ManufacturerController');
         Route::resource('supplier', 'SupplierController');
         Route::resource('customer', 'CustomerController');
+        Route::post('product/search', ['as' => 'searchProduct', 'uses' => 'ProductController@search']);
         Route::resource('product', 'ProductController');
         Route::resource('quote', 'QuoteController');
         Route::resource('order', 'OrderController');
@@ -56,6 +53,7 @@ Route::group(['middleware' => 'auth'], function (){
     Route::get('warehouse-management', ['as' => 'warehouseManagement', 'uses' => 'WarehouseController@index']);
     Route::get('quote-management', ['as' => 'quoteManagement', 'uses' => 'QuoteController@index']);
     Route::get('order-management', ['as' => 'orderManagement', 'uses' => 'OrderController@index']);
+    Route::get('profile-management', ['as' => 'profileManagement', 'uses' => 'ProfileController@index']);
 
 });
 

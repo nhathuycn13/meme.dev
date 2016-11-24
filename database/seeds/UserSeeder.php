@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
         ]);
         \App\Model\Status::create([
             'name' => 'đang đợi',
-            'label' => 'label bg-warning',
+            'label' => 'label bg-green',
         ]);
         \App\Model\Status::create([
             'name' => 'đã nhập',

@@ -68,4 +68,10 @@ class SupplierEloquent implements SupplierRepo
         return $this->supplier->findOrFail($id);
     }
 
+    public function paginate($perpage, $column = ['*'])
+    {
+        return $this->supplier->paginate(10, $column);
+    }
+
+
 }

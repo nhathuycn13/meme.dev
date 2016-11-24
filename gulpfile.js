@@ -74,8 +74,25 @@ elixir(function (mix) {
     //     'plugin/app.js',
     // ], 'public/js/admin.js');
 
-    mix.webpack('quote-management.js', 'public/js/quote-management.js');
+
+    // //sale
+    // mix.webpack('quote-management.js', 'public/js/quote-management.js');
+    // mix.webpack('order-management.js', 'public/js/order-management.js');
+    mix.webpack('customer-management.js', 'public/js/customer-management.js');
+    //
+    // //warehouse
     // mix.webpack('warehouse-management.js', 'public/js/warehouse-management.js');
     // mix.webpack('pnk-management.js', 'public/js/pnk-management.js');
-    mix.webpack('order-management.js', 'public/js/order-management.js');
+    // mix.webpack('pxk-management.js', 'public/js/pxk-management.js');
+    //
+    // //product
+    // mix.webpack('product-management.js', 'public/js/product-management.js');
+    // mix.webpack('type-management.js', 'public/js/type-management.js');
+    mix.webpack('supplier-management.js', 'public/js/supplier-management.js');
+    // mix.webpack('manufacturer-management.js', 'public/js/manufacturer-management.js');
+
+
+    // mix.webpack('profile-management.js', 'public/js/profile-management.js');
+
+
 });

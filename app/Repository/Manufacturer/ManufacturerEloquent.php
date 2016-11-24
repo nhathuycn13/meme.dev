@@ -35,7 +35,16 @@ class ManufacturerEloquent implements ManufacturerRepo
      */
     public function create($attributes)
     {
-        return $this->manu->create($attributes);
+//        return $attributes;
+        $m = $this->manu->create($attributes);
+        if (isset($attributes['type_id']))
+        {
+            $getArray = function ($item){
+                return $item['id'];
+            };
+            $m->types()->attach(array_map($getArray, $attributes['type_id']));
+        }
+        return $m;
     }
 
     /**
@@ -66,7 +75,7 @@ class ManufacturerEloquent implements ManufacturerRepo
      */
     public function paginate($perpage, $column = ['*'])
     {
-        // TODO: Implement paginate() method.
+        return $this->manu->paginate($perpage, $column);
     }
 
     /**
@@ -75,7 +84,8 @@ class ManufacturerEloquent implements ManufacturerRepo
      */
     public function get($id)
     {
-        return $this->manu->findOrFail($id);
+
+        return $this->manu->with(['types'])->findOrFail($id);
     }
 
 }

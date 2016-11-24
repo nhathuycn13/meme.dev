@@ -20,8 +20,11 @@ class CreateSupliersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('mobile')->nullable();
             $table->string('email')->nullable()->unique();
-            $table->string('tax_id');
-            $table->string('address');
+            $table->string('tax_id', 10);
+            $table->string('bank_id')->nullable();
+            $table->string('branch')->nullable();
+            $table->string('address')->nullable();
+            $table->string('map')->nullable();
             $table->string('description')->nullable();
             $table->string('slug');
             $table->timestamps();

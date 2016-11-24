@@ -81,7 +81,7 @@
                                     </td>
                                     <td>
                                         <select v-model="item.product_id" class="form-control" style="width : 100%;">
-                                            <option v-for="option in products" v-bind:value="option.id">{{option.name}}</option>
+                                            <option v-for="option in products.data" v-bind:value="option.id">{{option.name}}</option>
                                         </select>
                                     </td>
                                     <td>

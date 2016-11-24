@@ -1,62 +1,80 @@
 <template>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3>Add New Product</h3>
+    <div class="invoice">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="page-header">
+                    Thêm Mới Sản Phẩm
+                    <div class="pull-right">
+                        <i class="fa fa-globe"></i> In1, Inc.
+                    </div>
+                </h2>
+            </div>
+            <!-- /.col -->
         </div>
-        <div class="panel-body">
-            <div class="form form-horizontal">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Name *</label>
-                    <div class="col-sm-8">
-                        <input type="text" v-model="item.name" class="form-control"/>
+        <div class="row">
+            <div class="col-xs-12">
+                <form @submit.prevent="addNew" class="form form-horizontal">
+                    <div class="form-group" :class="{'has-error': form.$errors.has('name')}">
+                        <label class="col-sm-2 control-label">Tên *</label>
+                        <div class="col-sm-8">
+                            <input v-model="form.$fields.name" class="form-control">
+                            <label v-if="form.$errors.has('name')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.name[0]}}</label>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Type</label>
-                    <div class="col-sm-8">
-                        <select v-model="item.type_id" class="form-control">
-                            <option v-for="type in types" v-bind:value="type.id">{{type.name}}</option>
-                        </select>
+                    <div class="form-group" :class="{'has-error': form.$errors.has('type_id')}">
+                        <label class="col-sm-2 control-label">Loại *</label>
+                        <div class="col-sm-8">
+                            <select v-model="form.$fields.type_id" class="form-control">
+                                <option v-for="type in types" v-bind:value="type.id">{{type.name}}</option>
+                            </select>
+                            <label v-if="form.$errors.has('type_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.type_id[0]}}</label>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Manufacturer</label>
-                    <div class="col-sm-8">
-                        <select v-model="item.manufacturer_id" class="form-control">
-                            <option v-for="manu in manufacturers" v-bind:value="manu.id">{{manu.name}}</option>
-                        </select>
+                    <div class="form-group" :class="{'has-error': form.$errors.has('manufacturer_id')}">
+                        <label class="col-sm-2 control-label">Nhà Sản Xuất *</label>
+                        <div class="col-sm-8">
+                            <select v-model="form.$fields.manufacturer_id" class="form-control">
+                                <option v-for="manu in manufacturers" v-bind:value="manu.id">{{manu.name}}</option>
+                            </select>
+                            <label v-if="form.$errors.has('manufacturer_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.manufacturer_id[0]}}</label>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Code </label>
-                    <div class="col-sm-8">
-                        <input type="text" v-model="item.code" class="form-control"/>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Thumbnail</label>
-                    <div class="col-sm-3">
-                        <input id="image" type="file" class="form-control" @change="loadImage">
-                    </div>
-                    <div class="col-sm-5">
-                        <img id="imageLoad" class="img img-responsive img-thumbnail" @load="updateThumbnail"/>
-                        <input id="ImageBase64" type="hidden" value="" v-model="item.thumbnail" />
-                    </div>
-                </div>
+                    <div class="form-group" :class="{'has-error': form.$errors.has('code')}">
+                        <label class="col-sm-2 control-label">Mã *</label>
+                        <div class="col-sm-8">
+                            <input v-model="form.$fields.code" class="form-control">
 
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Detail</label>
-                    <div class="col-sm-8">
-                        <textarea v-model="item.detail" class="form-control"></textarea>
+                            <label v-if="form.$errors.has('code')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.code[0]}}</label>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label"></label>
-                    <div class="col-sm-8">
-                        <button class="btn btn-primary" @click="addNew">Add</button>
-                        <router-link :to="{ name: 'list' }" class="btn btn-default">Back</router-link>
+                    <div class="form-group" :class="{'has-error': form.$errors.has('thumbnail')}">
+                        <label class="col-sm-2 control-label">Ảnh Đại Diện</label>
+                        <div class="col-sm-3">
+                            <div class="btn btn-default btn-file">
+                                <i class="fa fa-paperclip"></i> Chọn
+                                <input id="image" type="file" class="form-control" @change="loadImage">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <label v-if="form.$errors.has('thumbnail')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.thumbnail[0]}}</label>
+                            <img v-else id="imageLoad" class="img img-responsive img-thumbnail" @load="updateThumbnail"/>
+                            <input id="ImageBase64" type="hidden" value="" v-model="form.$fields.thumbnail" />
+                        </div>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Chi Tiết</label>
+                        <div class="col-sm-8">
+                            <textarea v-model="form.$fields.detail" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+                        <div class="col-sm-8">
+                            <button :disabled="form.$busy" type="submit" class="btn btn-primary" @click="addNew"><i class="fa fa-save"></i> Lưu</button>
+                            <router-link :to="{ name: 'list' }" class="btn btn-default"><i class="fa fa-mail-reply"></i> Quay Lại</router-link>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -66,14 +84,14 @@
     export default{
         data : function () {
             return {
-                item: {
+                form : this.$form({
                     name: '',
                     code: '',
                     detail: '',
                     type_id: '',
                     manufacturer_id: '',
                     thumbnail: '',
-                },
+                }),
                 types : [],
                 manufacturers : [],
             };
@@ -83,36 +101,29 @@
         },
         methods : {
             addNew : function () {
-                this.$http.post('api/product', {'data' : this.item}).then(function (response) {
-                    console.log(response.body);
-                    this.notify('Success', 'success', 'Add complete!!!');
-                    this.item = {
-                        item: {
-                            name: '',
-                            code: '',
-                            detail: '',
-                            type_id: '',
-                            manufacturer_id: '',
-                            thumbnail: '',
-                        }
+                var meme = this;
+                this.form.post('api/product').then(function (response) {
+                    meme.notify('Thành công!', 'success', 'Add complete!!!');
+                    meme.form.$fields = {
+                        name: '',
+                        code: '',
+                        detail: '',
+                        type_id: '',
+                        manufacturer_id: '',
+                        thumbnail: '',
                     }
-                    document.getElementById('imageLoad').setAttribute('src', '');
                 }, function (response) {
-                    if (response.status == 422){
-                        var loop = response.body;
-                        for(var item in loop){
-                            this.notify('Error', 'danger', loop[item]);
-                        }
-                    }
+                    meme.notify('Thành công!', 'danger', 'Add complete!!!');
+
                 });
 
             },
             fetchData : function () {
                 this.$http.get('api/type').then(function (response) {
-                    this.types = response.body;
+                    this.types = response.body.data;
                 });
                 this.$http.get('api/manufacturer').then(function (response) {
-                    this.manufacturers = response.body;
+                    this.manufacturers = response.body.data;
                 });
             },
             loadImage : function(){
@@ -128,11 +139,11 @@
 
                 }
 
-                this.item.thumbnail = document.getElementById('ImageBase64').getAttribute('value');
+                this.form.$fields.thumbnail = document.getElementById('ImageBase64').getAttribute('value');
 
             },
             updateThumbnail : function () {
-                this.item.thumbnail = document.getElementById('imageLoad').src;
+                this.form.$fields.thumbnail = document.getElementById('imageLoad').src;
             },
             notify : function(title, type, text) {
                 $.notify({

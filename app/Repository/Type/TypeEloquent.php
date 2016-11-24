@@ -34,7 +34,15 @@ class TypeEloquent implements TypeRepo
      */
     public function create($attributes)
     {
-        return $this->type->create($attributes);
+        $t = $this->type->create($attributes);
+        if (isset($attributes['type_id']))
+        {
+            $getArray = function ($item){
+                return $item['id'];
+            };
+            $t->manufacturers()->attach(array_map($getArray, $attributes['type_id']));
+        }
+        return $t;
     }
 
     /**
@@ -65,12 +73,12 @@ class TypeEloquent implements TypeRepo
      */
     public function paginate($perpage, $column = ['*'])
     {
-        // TODO: Implement paginate() method.
+        return $this->type->paginate($perpage, $column);
     }
 
     public function get($id)
     {
-        return $this->type->findOrFail($id);
+        return $this->type->with(['manufacturers'])->findOrFail($id);
     }
 
 }

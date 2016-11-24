@@ -14,6 +14,8 @@ use App\Model\Order;
 use App\Model\OrderDetail;
 use Illuminate\Support\Facades\Auth;
 use Mail;
+use PDF;
+use App;
 class OrderEloquent implements OrderRepo
 {
     private $order;
@@ -70,15 +72,28 @@ class OrderEloquent implements OrderRepo
         ];
     }
 
-    public function sendMail($id, $type)
+    public function sendMail($id, $type, $messageSend)
     {
         $data = $this->get($id);
+        $order = $data['data'];
         switch ($type){
             case 1:
-                return Mail::to($data->customer->email)->send(new QuoteMail($data));
+                $temp = Mail::to($messageSend['customer']);
+                if (!empty($messageSend['cc'])) $temp = $temp->cc($messageSend['cc']);
+                return $temp->send(new QuoteMail($data, $messageSend['content']));
         }
-//        return view('mail.quote');
     }
 
-
+    public function printMe($id, $type = 0)
+    {
+        $data = $this->get($id);
+        $pdf = PDF::loadView('pdf.quote', $data);
+        return $pdf->stream('quote.pdf');
+    }
+//    public function download($id, $type = 0)
+//    {
+//        $data = $this->get($id);
+//        $pdf = PDF::loadView('pdf.quote', $data);
+//        return $pdf->download('quote.pdf');
+//    }
 }
