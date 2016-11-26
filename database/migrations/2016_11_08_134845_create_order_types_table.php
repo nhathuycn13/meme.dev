@@ -13,9 +13,10 @@ class CreateOrderTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_types', function (Blueprint $table) {
+        Schema::create('order_status', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('label');
             $table->string('description')->nullable();
             $table->timestamps();
         });
@@ -28,6 +29,6 @@ class CreateOrderTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_types');
+        Schema::dropIfExists('order_status');
     }
 }

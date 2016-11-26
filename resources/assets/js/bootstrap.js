@@ -25,6 +25,7 @@ Vue.use(VueTimeago, {
     locale: 'vi-VI',
     locales: {
         'vi-VI': [
+            //todoHuy: viet
             "just now",
             ["%s giây trước", "%s giây trước"],
             ["%s phút trước", "%s phút trước"],

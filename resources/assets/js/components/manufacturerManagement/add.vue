@@ -40,7 +40,6 @@
                                          :clear-on-select="true"
                                          :close-on-select="false"
                                          :loading="isLoading"
-                                         @select="dispatchAction"
                                          @search-change="asyncFind"
                                          track-by="id"
                                          label="name"
@@ -110,19 +109,6 @@
             },
             updateSelected (newSelected) {
                 this.form.$fields.type_id = newSelected
-            },
-            dispatchAction : function (actionName) {
-                switch (actionName) {
-                    case 'alert':
-                        window.alert('You just dispatched "alert" action!')
-                        break
-                    case 'console.log':
-                        console.log('You just dispatched "console.log" action!')
-                        break
-                    case 'scrollTop':
-                        window.scrollTo(0, 0)
-                        break
-                }
             },
             customerLabel : function (meme) {
                 return meme.name + '-' + meme.code;

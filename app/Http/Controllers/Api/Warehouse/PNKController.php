@@ -25,7 +25,7 @@ class PNKController extends Controller
      */
     public function index()
     {
-        return $this->nk->getAll();
+        return $this->nk->paginate(request('per_page'));
     }
     /**
      * Store a newly created resource in storage.
@@ -36,18 +36,9 @@ class PNKController extends Controller
     public function store(Request $request)
     {
         $message = [
-            'status_id.required' => 'Vui lòng chọn trạng thái.',
-            'tax.numeric' => 'Vui lòng nhập số thích hợp.',
-            'tax.min' => 'Vui lòng nhập số lớn hơn hoặc bằng :min.',
-            'tax.max' => 'Vui lòng nhập số nhỏ hơn hoặc bằng :max.',
-            'shipping.numeric' => 'Vui lòng nhập số thích hợp.',
-            'shipping.min' => 'Vui lòng nhập số lớn hơn hoặc bằng :min.',
             'rows.required'    => 'Thêm sản phẩm.',
         ];
         $this->validate($request, [
-            'status_id' => 'required',
-            'tax'       => 'numeric|min:0|max:100',
-            'shipping'       => 'numeric|min:0',
             'rows'      => 'required',
         ], $message);
         return $this->nk->create($request);
@@ -84,22 +75,15 @@ class PNKController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //change status to done!!!
-        if ($request->setToDone){
-            $this->warehouse->create($id);
-            return $this->nk->setStatus($id, 3);
+        if ($request->has('setStatus')){
+            return $this->nk->setStatus($id, $request);
         }
-        if ($request->setToPending){
-            return $this->nk->setStatus($id, 2);
-        }
-        if ($request->setToCancel){
-            return $this->nk->setStatus($id, 4);
-        }
-        return $this->nk->update($id, $request->data);
+
+        //return $this->nk->update($id, $request->data);
     }
 
     public function destroy($id)
     {
-        return $this->nk->delete($id);
+        return $id == 0 ? $this->nk->delete(request('ids')) : $this->nk->delete($id);
     }
 }

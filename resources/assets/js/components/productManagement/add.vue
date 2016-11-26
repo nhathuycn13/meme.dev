@@ -1,4 +1,5 @@
 <template>
+    <!--todoHuy: placeholder there-->
     <div class="invoice">
         <div class="row">
             <div class="col-xs-12">
@@ -7,6 +8,7 @@
                     <div class="pull-right">
                         <i class="fa fa-globe"></i> In1, Inc.
                     </div>
+
                 </h2>
             </div>
             <!-- /.col -->
@@ -21,21 +23,40 @@
                             <label v-if="form.$errors.has('name')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.name[0]}}</label>
                         </div>
                     </div>
-                    <div class="form-group" :class="{'has-error': form.$errors.has('type_id')}">
+                    <div class="form-group">
                         <label class="col-sm-2 control-label">Loại *</label>
                         <div class="col-sm-8">
-                            <select v-model="form.$fields.type_id" class="form-control">
-                                <option v-for="type in types" v-bind:value="type.id">{{type.name}}</option>
-                            </select>
-                            <label v-if="form.$errors.has('type_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.type_id[0]}}</label>
+                            <!--todoHuy: viet hoa this deselectLabel-->
+                            <multiselect :options="types"
+                                         :value="form.$fields.type_id"
+                                         :local-search="false"
+                                         :clear-on-select="true"
+                                         :close-on-select="true"
+                                         :loading="isLoading"
+                                         @search-change="asyncFind"
+                                         track-by="id"
+                                         label="name"
+                                         placeholder="Nhập loại sản phẩm"
+                                         selectLabel="Nhấn enter để chọn"
+                                         deselectLabel = "Nhấn enter bor chọn"
+                                         @input="updateSelected"></multiselect>
                         </div>
                     </div>
                     <div class="form-group" :class="{'has-error': form.$errors.has('manufacturer_id')}">
                         <label class="col-sm-2 control-label">Nhà Sản Xuất *</label>
                         <div class="col-sm-8">
-                            <select v-model="form.$fields.manufacturer_id" class="form-control">
-                                <option v-for="manu in manufacturers" v-bind:value="manu.id">{{manu.name}}</option>
-                            </select>
+                            <multiselect :options="manufacturers"
+                                         :value="form.$fields.manufacturer_id"
+                                         :local-search="true"
+                                         :clear-on-select="true"
+                                         :close-on-select="true"
+                                         :loading="isLoading"
+                                         track-by="id"
+                                         label="name"
+                                         placeholder="Nhập loại sản phẩm"
+                                         selectLabel="Nhấn enter để chọn"
+                                         deselectLabel = "Nhấn enter bor chọn"
+                                         @input="updateManuSelected"></multiselect>
                             <label v-if="form.$errors.has('manufacturer_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.manufacturer_id[0]}}</label>
                         </div>
                     </div>
@@ -61,6 +82,15 @@
                             <input id="ImageBase64" type="hidden" value="" v-model="form.$fields.thumbnail" />
                         </div>
                     </div>
+                    <!--todoHuy: viet-->
+                    <div class="form-group" :class="{'has-error': form.$errors.has('warranty')}">
+                        <label class="col-sm-2 control-label">BH</label>
+                        <div class="col-sm-8">
+                            <input v-model="form.$fields.warranty" class="form-control">
+
+                            <label v-if="form.$errors.has('warranty')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.warranty[0]}}</label>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Chi Tiết</label>
                         <div class="col-sm-8">
@@ -81,6 +111,7 @@
 </template>
 
 <script>
+    import Multiselect from 'vue-multiselect'
     export default{
         data : function () {
             return {
@@ -91,10 +122,20 @@
                     type_id: '',
                     manufacturer_id: '',
                     thumbnail: '',
+                    warranty : 0,
                 }),
+                isLoading : false,
                 types : [],
                 manufacturers : [],
             };
+        },
+        components: {
+            Multiselect,
+        },
+        computed : {
+            getCode : function () {
+                return '#' + this.form.$fields.type_id.code + this.form.$fields.manufacturer_id.code;
+            }
         },
         created : function () {
             this.fetchData();
@@ -111,20 +152,42 @@
                         type_id: '',
                         manufacturer_id: '',
                         thumbnail: '',
+                        warranty : 0,
                     }
                 }, function (response) {
-                    meme.notify('Thành công!', 'danger', 'Add complete!!!');
-
+                    meme.notify('Error!', 'danger', 'Add complete!!!');
+                    console.log(response.body)
                 });
 
             },
             fetchData : function () {
-                this.$http.get('api/type').then(function (response) {
-                    this.types = response.body.data;
-                });
-                this.$http.get('api/manufacturer').then(function (response) {
-                    this.manufacturers = response.body.data;
-                });
+
+            },
+            asyncFind : function (query) {
+                if (query.length === 0) {
+                    this.options = []
+                } else {
+                    this.isLoading = true
+                    this.$http.get('api/type/search/' + query).then(function (response) {
+                        if (response.body === [])
+                        {
+                            console.log('empty')
+                        }else{
+                            this.types = response.body;
+                        }
+                        this.isLoading = false;
+                    }, function (response) {
+                        this.isLoading = false;
+                    });
+                }
+            },
+            updateSelected (newSelected) {
+                this.form.$fields.type_id = newSelected;
+                this.form.$fields.manufacturer_id = null;
+                this.manufacturers = newSelected.manufacturers;
+            },
+            updateManuSelected (newSelected) {
+                this.form.$fields.manufacturer_id = newSelected
             },
             loadImage : function(){
                 var input = document.getElementById('image');

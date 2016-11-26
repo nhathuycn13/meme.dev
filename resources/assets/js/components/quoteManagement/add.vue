@@ -14,13 +14,24 @@
         <div class="row">
             <div class="col-xs-12">
                 <form @submit.prevent="addNew" class="form form-horizontal">
-                    <div class="form-group" :class="{'has-error': form.$errors.has('status_id')}">
+                    <div class="form-group" :class="{'has-error': form.$errors.has('customer_id')}">
                         <label class="col-sm-2 control-label">Khách hàng *</label>
                         <div class="col-sm-8">
-                            <select v-model="form.$fields.customer_id" class="form-control">
-                                <option v-for="s in customers" v-bind:value="s.id">{{ s.name }}</option>
-                            </select>
-                            <label v-if="form.$errors.has('status_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.status_id[0]}}</label>
+                            <!--todoHuy: viet-->
+                            <multiselect :options="customers"
+                                         :value="form.$fields.customer_id"
+                                         :local-search="false"
+                                         :clear-on-select="true"
+                                         :close-on-select="true"
+                                         :loading="isLoading"
+                                         @search-change="asyncFindCustomer"
+                                         track-by="id"
+                                         label="name"
+                                         placeholder="Nhập loại sản phẩm"
+                                         selectLabel="Nhấn enter để chọn"
+                                         deselectLabel = "Nhấn enter bor chọn"
+                                         @input="updateCustomerSelected"></multiselect>
+                            <label v-if="form.$errors.has('customer_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.customer_id[0]}}</label>
                         </div>
                     </div>
                     <div class="form-group" :class="{'has-error': form.$errors.has('payment_type_id')}">
@@ -32,18 +43,11 @@
                             <label v-if="form.$errors.has('payment_type_id')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.payment_type_id[0]}}</label>
                         </div>
                     </div>
-                    <div class="form-group" :class="{'has-error': form.$errors.has('expirated_at')}">
-                        <label class="col-sm-2 control-label">Ngaỳ hết hạn</label>
+                    <div class="form-group" :class="{'has-error': form.$errors.has('tax')}">
+                        <label class="col-sm-2 control-label">Tax (%)</label>
                         <div class="col-sm-8">
-                            <input type="date" v-model="form.$fields.expirated_at" class="form-control">
-                            <label v-if="form.$errors.has('expirated_at')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.expirated_at[0]}}</label>
-                        </div>
-                    </div>
-                    <div class="form-group" :class="{'has-error': form.$errors.has('shipping')}">
-                        <label class="col-sm-2 control-label">Phí giao hàng</label>
-                        <div class="col-sm-8">
-                            <input type="number" v-model="form.$fields.shipping" class="form-control">
-                            <label v-if="form.$errors.has('shipping')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.shipping[0]}}</label>
+                            <input type="number" v-model="form.$fields.tax" class="form-control">
+                            <label v-if="form.$errors.has('tax')" class="control-label"><i class="fa fa-times-circle-o"></i> {{form.$errors.$errors.tax[0]}}</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -73,8 +77,7 @@
                                         <th>Sản Phẩm</th>
                                         <th>Số Lượng</th>
                                         <th>Đơn Giá</th>
-                                        <th>Giảm Giá</th>
-                                        <th>Thuế</th>
+                                        <!--<th>Giảm Giá</th>-->
                                         <th>Thành Tiền</th>
                                         <th></th>
                                     </tr>
@@ -86,21 +89,25 @@
                                             {{index + 1}}
                                         </td>
                                         <td>
-                                            <select v-model="item.product_id" class="form-control" style="width : 100%;">
-                                                <option v-for="option in products" v-bind:value="option.id">{{option.name}}</option>
-                                            </select>
+                                            <multiselect :options="products"
+                                                         v-model="item.product_id"
+                                                         :value="item.product_id"
+                                                         :local-search="false"
+                                                         :clear-on-select="true"
+                                                         :close-on-select="true"
+                                                         :loading="isLoading"
+                                                         @search-change="asyncFind"
+                                                         track-by="id"
+                                                         label="name"
+                                                         placeholder="Nhập loại sản phẩm"
+                                                         selectLabel="Nhấn enter để chọn"
+                                                         deselectLabel = "Nhấn enter bor chọn"></multiselect>
                                         </td>
                                         <td>
                                             <input type="text" v-model="item.qty" class="form-control">
                                         </td>
                                         <td>
                                             <input type="text" v-model="item.price" class="form-control">
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.1" v-model="item.discount" class="form-control">
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.1" v-model="item.tax" class="form-control">
                                         </td>
                                         <td>{{ subtotalItem(item) }}</td>
                                         <td>
@@ -177,9 +184,11 @@
 </template>
 
 <script>
+    import Multiselect from 'vue-multiselect'
     export default{
         data : function () {
             return {
+                isLoading :false,
                 products : [],
                 customers : [],
                 payments : [],
@@ -187,11 +196,13 @@
                     'customer_id': null,
                     'description': null,
                     'payment_type_id' : null,
-                    'shipping': 0,
-                    'expirated_at' : '',
+                    'tax' : 0,
                     'rows' : [],
                 })
             };
+        },
+        components: {
+            Multiselect,
         },
         created : function () {
             this.fetchData();
@@ -225,32 +236,59 @@
                 this.form.$fields.rows.push({
                     product_id : -1,
                     qty : 1,
-                    discount : 0,
                     price : '',
-                    tax : 0,
                 });
             },
             subtotalItem : function (item) {
-                var result =item.qty * item.price;
-                var discount = result/100 * item.discount;
-                result -= discount;
-                var tax = result/100 * item.tax;
-                return result + tax;
+                return item.qty * item.price;
             },
             fetchData : function () {
                 this.$Progress.start();
-                this.$http.get('api/customer').then(function (response) {
-                    this.customers = response.body.data;
-                    this.$Progress.finish();
-                })
-                this.$http.get('api/product').then(function (response) {
-                    this.products = response.body.data;
-                    this.$Progress.finish();
-                })
                 this.$http.get('api/payment').then(function (response) {
                     this.payments = response.body;
                     this.$Progress.finish();
+                }, function (response) {
+                    this.$Progress.fail();
                 })
+            },
+            asyncFindCustomer : function (query) {
+                if (query.length === 0) {
+                    this.customer = []
+                } else {
+                    this.isLoading = true
+                    this.$http.get('api/customer/search/' + query).then(function (response) {
+                        if (response.body === [])
+                        {
+                            console.log('empty')
+                        }else{
+                            this.customers = response.body;
+                        }
+                        this.isLoading = false;
+                    }, function (response) {
+                        this.isLoading = false;
+                    });
+                }
+            },
+            updateCustomerSelected (newSelected) {
+                this.form.$fields.customer_id = newSelected
+            },
+            asyncFind : function (query) {
+                if (query.length === 0) {
+                    this.options = []
+                } else {
+                    this.isLoading = true
+                    this.$http.get('api/product/search/' + query).then(function (response) {
+                        if (response.body === [])
+                        {
+                            console.log('empty')
+                        }else{
+                            this.products = response.body;
+                        }
+                        this.isLoading = false;
+                    }, function (response) {
+                        this.isLoading = false;
+                    });
+                }
             },
             notify : function(title, type, text) {
                 $.notify({

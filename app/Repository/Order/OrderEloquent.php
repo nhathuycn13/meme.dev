@@ -34,22 +34,20 @@ class OrderEloquent implements OrderRepo
         return $result->with('user', 'customer')->get($column);
     }
 
-    public function create($attributes, $type = 2)
+    public function create($attributes, $type = 2, $isOrder = false)
     {
-        $order = $this->order->create([
-            'customer_id' => $attributes->customer_id,
-            'order_type_id' => $type,
-            'shipping' => $attributes->shipping,
-            'description' => $attributes->description,
-            'payment_type_id' => $attributes->payment_type_id,
-            'user_id' => Auth::user()->id,
-        ]);
+        $attributes['customer_id'] = $attributes->customer_id['id'];
+        $attributes['order_status'] = $type;
+        $attributes['isOrder'] = $isOrder;
+        $attributes['user_id'] = $attributes->user()->id;
+        $meme = $this->order->create($attributes->toArray());
         foreach ($attributes->rows as $row){
             if($row['product_id'] > 0){
-                $order->OrderDetail()->save(new OrderDetail($row));
+                $row['product_id'] = $row['product_id']['id'];
+                $meme->OrderDetail()->save(new OrderDetail($row));
             }
         }
-        return $order->id;
+        return response($meme->id);
     }
 
     public function update($id, $attribute)
@@ -65,11 +63,7 @@ class OrderEloquent implements OrderRepo
     public function get($id)
     {
 
-        return [
-            'data' => $this->order->with('orderDetail.product', 'type', 'user', 'customer', 'products')->findOrFail($id),
-            'nextId' => $this->order->nextId($id),
-            'previousId' => $this->order->previoustId($id),
-        ];
+        return $this->order->with('orderDetail.product', 'type', 'user', 'customer', 'products')->findOrFail($id);
     }
 
     public function sendMail($id, $type, $messageSend)
@@ -90,6 +84,23 @@ class OrderEloquent implements OrderRepo
         $pdf = PDF::loadView('pdf.quote', $data);
         return $pdf->stream('quote.pdf');
     }
+
+    public function paginate($perpage = 15, $isOrder = false, $column = ['*'])
+    {
+//        todoHuy: where orderStatus
+        return $this->order->where('isOrder', $isOrder)->with(['customer', 'user'])->paginate($perpage, $column);
+    }
+
+    public function setStatus($id, $status)
+    {
+        $meme = $this->order->findOrFail($id);
+        $meme->order_status = intval($status);
+        if ($meme->save()){
+            return App\Model\OrderStatus::find($status);
+        }else return response('Error', 502);
+    }
+
+
 //    public function download($id, $type = 0)
 //    {
 //        $data = $this->get($id);

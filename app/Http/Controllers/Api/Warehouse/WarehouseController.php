@@ -25,9 +25,10 @@ class WarehouseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->warehouse->getAll();
+        $perpage = $request->perpage;
+        return $this->warehouse->paginate($perpage);
     }
 
     /**

@@ -25,9 +25,9 @@ class QuoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->quote->getAll(['1', '2']);
+        return $this->quote->paginate($request->perpage, false, ['*']);
     }
 
     /**
@@ -48,19 +48,20 @@ class QuoteController extends Controller
      */
     public function store(Request $request)
     {
-
+//        todoHuy: validate + viet
         $rules = [
             'customer_id' => 'required',
             'payment_type_id' => 'required',
             'expirated_at' => '',
-            'shipping' => 'numeric|min:0',
             'rows' => 'min:0'
         ];
+//        todoHuy: validate
         $message = [
             'customer_id.required' => 'abc',
+            'payment_type_id.required' => 'abc',
         ];
         $this->validate($request, $rules, $message);
-        return $this->quote->create($request);
+        return $this->quote->create($request, 2);
     }
 
     /**
@@ -94,6 +95,9 @@ class QuoteController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($request->has('status')){
+            return $this->quote->setStatus($id, $request->status);
+        }
         if ($request->setToCancel){
             if ($this->quote->update($id, [
                 'order_type_id' => 1,
@@ -125,6 +129,6 @@ class QuoteController extends Controller
      */
     public function destroy($id)
     {
-        return $this->quote->delete($id);
+        return $id == 0? $this->quote->delete(request('ids')) : $this->quote->delete($id);
     }
 }

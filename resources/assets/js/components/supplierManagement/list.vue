@@ -183,13 +183,10 @@
                 var confirm = window.confirm("Bạn có chắc muốn xóa?");
                 if (!confirm) return;
                 this.$Progress.start();
-                this.$http.delete('api/supplier').then(function (response) {
-                    console.log(response.body);
-                    if (response.body == '1'){
-                        this.notify('Deleted', 'success', '');
-                        this.fetchData();
-                        this.$Progress.finish();
-                    }
+                this.$http.delete('api/supplier/0', {params : {ids : this.selected}}).then(function (response) {
+                    this.notify('Deleted', 'success', '');
+                    this.fetchData(1);
+                    this.$Progress.finish();
                 }, function () {
                     this.notify('Error', 'danger', '');
                     this.$Progress.fail();

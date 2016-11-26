@@ -41,6 +41,8 @@ class ProductEloquent implements ProductRepo
      */
     public function create($attributes)
     {
+        $attributes['type_id'] = $attributes['type_id']['id'];
+        $attributes['manufacturer_id'] = $attributes['manufacturer_id']['id'];
         return $this->eloquent->create($attributes);
     }
 

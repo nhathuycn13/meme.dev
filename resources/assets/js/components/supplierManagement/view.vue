@@ -33,6 +33,12 @@
 
                         <dt>Mã Số Thuế</dt>
                         <dd>{{ form.tax_id }}</dd>
+
+                        <dt>Bank Id</dt>
+                        <dd>{{ form.bank_id }}</dd>
+
+                        <dt>Chi nhanh</dt>
+                        <dd>{{ form.branch }}</dd>
                     </dl>
                 </div>
                 <div class="col-sm-4">
@@ -59,6 +65,19 @@
                 </div>
             </div>
             <!-- /.row -->
+            <div class="row" v-if="form.map[0] != null">
+                <div class="col-xs-12">
+                    <gmap-map style="height:500px;"
+                              :center="center"
+                              :zoom="zoom"
+                    >
+                        <gmap-marker
+                                v-for="m in form.map"
+                                :position="m.position"
+                        ></gmap-marker>
+                    </gmap-map>
+                </div>
+            </div>
             <!-- this row will not appear when printing -->
             <div class="row no-print">
                 <div class="col-xs-12">
@@ -72,11 +91,21 @@
     </div>
 </template>
 <script>
+    import {load, Map, Marker} from 'vue2-google-maps'
     export default{
         data(){
             return{
-                form : {}
+                zoom : 12,
+                center: {lat: 10.8116539, lng: 106.6670921},
+                form : {
+                    map : [],
+                },
+
             }
+        },
+        components: {
+            gmapMap: Map,
+            gmapMarker: Marker
         },
         created : function () {
             this.fetchData();
@@ -95,10 +124,22 @@
                 return n.length >= 5 ? n : new Array(5 - n.length + 1).join('0') + n;
             },
             deleteMe : function () {
-
+                var confirm = window.confirm("Bạn có chắc muốn xóa?");
+                if (!confirm) return;
+                this.$Progress.start();
+                this.$http.delete('api/type/' + this.form.id).then(function (response) {
+                    if (response.body == '1'){
+                        this.notify('Deleted', 'success', '');
+                        this.$router.push({ name: 'list'})
+                        this.$Progress.finish();
+                    }
+                }, function () {
+                    this.notify('Error', 'danger', '');
+                    this.$Progress.fail();
+                });
             },
             updateMe : function () {
-
+                this.$router.push({ name: 'update', params : { id : this.$route.params.id}})
             },
             notify : function(title, type, text) {
                 $.notify({

@@ -11,6 +11,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        // todoHuy : viet hoa this
         \App\User::create([
             'name' => 'Huy Bùi',
             'email' => 'nhathuycn13@gmail.com',
@@ -43,19 +44,19 @@ class UserSeeder extends Seeder
             'tax_id' => '134234567890',
 
         ]);
-        \App\Model\Status::create([
+        \App\Model\NK_Status::create([
             'name' => 'yêu cầu nhập',
             'label' => 'label label-primary',
         ]);
-        \App\Model\Status::create([
+        \App\Model\NK_Status::create([
             'name' => 'đang đợi',
-            'label' => 'label bg-green',
+            'label' => 'label label-info',
         ]);
-        \App\Model\Status::create([
+        \App\Model\NK_Status::create([
             'name' => 'đã nhập',
             'label' => 'label label-success',
         ]);
-        \App\Model\Status::create([
+        \App\Model\NK_Status::create([
             'name' => 'đã hủy',
             'label' => 'label label-danger',
         ]);
@@ -89,26 +90,30 @@ class UserSeeder extends Seeder
         ]);
 
         // Order type
-        \App\Model\OrderType::create([
+        \App\Model\OrderStatus::create([
             'name' => 'đã hủy',
+            'label' => 'label label-danger',
         ]);
-        \App\Model\OrderType::create([
+        \App\Model\OrderStatus::create([
             'name' => 'Báo gía',
+            'label' => 'label label-primary',
         ]);
-        \App\Model\OrderType::create([
+        \App\Model\OrderStatus::create([
             'name' => 'đơn hàng',
+            'label' => 'label label-primary',
         ]);
-        \App\Model\OrderType::create([
+        \App\Model\OrderStatus::create([
             'name' => 'thành công',
+            'label' => 'label label-success',
         ]);
-        \App\Model\Tax::create([
-            'name' => 'không có',
-            'value' => 0,
-        ]);
-        \App\Model\Tax::create([
-            'name' => 'thuế VAT',
-            'value' => 10,
-        ]);
+//        \App\Model\Tax::create([
+//            'name' => 'không có',
+//            'value' => 0,
+//        ]);
+//        \App\Model\Tax::create([
+//            'name' => 'thuế VAT',
+//            'value' => 10,
+//        ]);
         
 
     }

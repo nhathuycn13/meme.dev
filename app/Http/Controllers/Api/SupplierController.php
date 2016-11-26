@@ -44,17 +44,19 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        // viet hoa
         $messages = [
             'name.required' => 'Bạn chưa nhập tên',
             'tax_id.required' => 'Bạn chưa nhập mã số thuế',
             'tax_id.digits' => 'Mã số thuế không đúng',
-            'email.email' => 'Email số thuế không đúng',
+            'email.email' => 'Email không đúng',
+            'email.unique' => 'Email không đúng',
             'company_name.required' => 'Bạn chưa nhập tên công ty',
         ];
         $this->validate($request, [
             'name' => 'required',
             'tax_id' => 'required|digits:10',
-            'email' => 'email',
+            'email' => 'email|unique:supliers,email',
             'company_name' => 'required',
         ], $messages);
         return $this->supplier->create($request->toArray());
@@ -91,17 +93,19 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // viet hoa email
         $messages = [
             'name.required' => 'Bạn chưa nhập tên',
             'tax_id.required' => 'Bạn chưa nhập mã số thuế',
             'tax_id.digits' => 'Mã số thuế không đúng',
-            'email.email' => 'Email số thuế không đúng',
+            'email.email' => 'Email không đúng',
+            'email.unique' => 'Email không đúng',
             'company_name.required' => 'Bạn chưa nhập tên công ty',
         ];
         $this->validate($request, [
             'name' => 'required',
             'tax_id' => 'required | digits:10',
-            'email' => 'email',
+            'email' => 'email|unique:supliers,email',
             'company_name' => 'required',
         ], $messages);
         return $this->supplier->update($id, $request->data);
@@ -115,6 +119,6 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        return $this->supplier->delete($id);
+        return $id == 0 ? $this->supplier->delete(request('ids')) : $this->supplier->delete($id);
     }
 }

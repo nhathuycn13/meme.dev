@@ -13,7 +13,7 @@ class CreateStatusesTable extends Migration
      */
     public function up()
     {
-        Schema::create('status', function (Blueprint $table) {
+        Schema::create('NK_status', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->string('label');
@@ -27,6 +27,6 @@ class CreateStatusesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('status');
+        Schema::dropIfExists('NK_status');
     }
 }

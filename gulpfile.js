@@ -2,7 +2,7 @@ const elixir = require('laravel-elixir');
 require('laravel-elixir-vue-2');
 
 var dir = 'resources/assets/bower_components/';
-gulp.task('copy', function () {
+gulp.task('fuck', function () {
 
     //jquery
     gulp.src(dir + "jquery/dist/jquery.js")
@@ -35,9 +35,9 @@ gulp.task('copy', function () {
 });
 elixir(function (mix) {
 
-    //for css
+    // for css
     // mix.less('admin.less', 'resources/assets/css/admin.css');
-    // //
+    //
     // mix.styles([
     //     'admin.css',
     //     'other/animate.min.css',
@@ -76,9 +76,9 @@ elixir(function (mix) {
 
 
     // //sale
-    // mix.webpack('quote-management.js', 'public/js/quote-management.js');
+    mix.webpack('quote-management.js', 'public/js/quote-management.js');
     // mix.webpack('order-management.js', 'public/js/order-management.js');
-    mix.webpack('customer-management.js', 'public/js/customer-management.js');
+    // mix.webpack('customer-management.js', 'public/js/customer-management.js');
     //
     // //warehouse
     // mix.webpack('warehouse-management.js', 'public/js/warehouse-management.js');
@@ -88,7 +88,7 @@ elixir(function (mix) {
     // //product
     // mix.webpack('product-management.js', 'public/js/product-management.js');
     // mix.webpack('type-management.js', 'public/js/type-management.js');
-    mix.webpack('supplier-management.js', 'public/js/supplier-management.js');
+    // mix.webpack('supplier-management.js', 'public/js/supplier-management.js');
     // mix.webpack('manufacturer-management.js', 'public/js/manufacturer-management.js');
 
 

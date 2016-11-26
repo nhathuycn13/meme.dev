@@ -35,6 +35,12 @@ class SupplierEloquent implements SupplierRepo
      */
     public function create($attributes)
     {
+//        $maps = $attributes['map'];
+//        $temp = '';
+//        foreach ($maps as $map) {
+//            $temp .= $map['position']['lat'] . ',' .$map['position']['lng'] . ';';
+//        }
+//        $attributes['map'] = trim($temp, ';');
         return $this->supplier->create($attributes);
     }
 

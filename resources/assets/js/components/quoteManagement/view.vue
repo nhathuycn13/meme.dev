@@ -25,11 +25,11 @@
                         <dt>Id:</dt>
                         <dd>#SO{{ getId(me.id) }}</dd>
                         <dt>Status:</dt>
-                        <dd>{{ type.name }}</dd>
+                        <dd><label :class="type.label">{{ type.name }}</label></dd>
                         <dt>Employee:</dt>
                         <dd>{{ user.name }}</dd>
                         <dt>Created At:</dt>
-                        <dd><timeago :title="type.created_at" :since="type.created_at" :auto-update="60"></timeago></dd>
+                        <dd><timeago :title="me.created_at" :since="me.created_at" :auto-update="60"></timeago></dd>
                     </dl>
                 </div>
                 <div class="col-sm-4 invoice-col">
@@ -63,8 +63,6 @@
                                         <th>Sản Phẩm</th>
                                         <th>Số Lượng</th>
                                         <th>Đơn Giá</th>
-                                        <th>Giảm Giá</th>
-                                        <th>Thuế</th>
                                         <th>Thành Tiền</th>
                                     </tr>
                                     </thead>
@@ -83,13 +81,7 @@
                                         <td>
                                             {{ item.price }}
                                         </td>
-                                        <td>
-                                            {{ item.discount }}
-                                        </td>
-                                        <td>
-                                            {{ item.tax }}
-                                        </td>
-                                        <td>{{ subtotalItem(item) }}</td>
+                                        <td>{{ item.qty * item.price }}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -112,16 +104,8 @@
                                     <div class="table-responsive">
                                         <table class="table">
                                             <tr>
-                                                <th style="width:50%">Tổng cộng (đã tính thuế):</th>
-                                                <td> {{ total }}VND</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Phí vận chuyển:</th>
-                                                <td>{{ me.shipping }} VND</td>
-                                            </tr>
-                                            <tr>
                                                 <th>Tất cả:</th>
-                                                <td> {{ total + me.shipping }} VND</td>
+                                                <td> {{ total }} VND</td>
                                             </tr>
                                         </table>
                                     </div>
@@ -183,11 +167,30 @@
             <!-- this row will not appear when printing -->
             <div class="row no-print">
                 <div class="col-xs-12">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="dropdown-toggle" :class="btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Trạng thái: {{ type.name }} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <!--<li>-->
+                                <!--<a href="#" v-if="type.id == 2" @click.prevent="setStatus(1)">yêu cầu nhập</a>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<a href="#" v-if="status.id == 1" @click.prevent="setStatus(2)">đang đợi</a>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<a href="#" v-if="status.id == 2" @click.prevent="setStatus(3)">đã nhập</a>-->
+                            <!--</li>-->
+                            <li>
+                                <a href="#" v-if="type.id != 1" @click.prevent="setStatus(1)"> Hủy</a>
+                            </li>
+                        </ul>
+                    </div>
                     <router-link :to="{ name: 'list' }" class="btn btn-default"><i class="fa fa-mail-reply"></i> Quay Lại</router-link>
-                    <button v-if="type.id != 1" @click="setToCancel" class="btn btn-danger"><i class="fa fa-trash-o"></i> Hủy</button>
-                    <router-link :to="{ name: 'update', params : {id : $route.params.id} }" class="btn btn-info"><i class="fa fa-edit"></i> Chỉnh Sửa</router-link>
-                    <button v-if="type.id != 2" class="btn btn-success" @click="setToQuote">Chuyển Thành bao gia</button>
-                    <button v-if="type.id != 3" class="btn btn-success" @click="setToOrder">Chuyển Thành đơn hàng</button>
+                    <!--<button v-if="type.id != 1" @click="setToCancel" class="btn btn-danger"><i class="fa fa-trash-o"></i> Hủy</button>-->
+                    <!--<router-link :to="{ name: 'update', params : {id : $route.params.id} }" class="btn btn-info"><i class="fa fa-edit"></i> Chỉnh Sửa</router-link>-->
+                    <!--<button v-if="type.id != 2" class="btn btn-success" @click="setToQuote">Chuyển Thành bao gia</button>-->
+                    <!--<button v-if="type.id != 3" class="btn btn-success" @click="setToOrder">Chuyển Thành đơn hàng</button>-->
                     <button @click="printMe" type="button" class="btn btn-default pull-right"><i class="fa fa-print"></i> In</button>
                     <router-link :to="{ name: 'sendMail', params : {id : $route.params.id} }" class="btn btn-info pull-right"><i class="fa fa-envelope-o"></i> Send Mail</router-link>
                 </div>
@@ -200,15 +203,14 @@
     export default{
         data(){
             return{
-                me : '',
-                user : '',
-                type : '',
+                me : {},
+                user : {},
+                type : {},
                 ctpnk : [],
-                customer : '',
-                list_products : [],
-                isSendingMail : false,
+                customer : {},
                 nextId : null,
                 previousId : null,
+                btn : 'btn btn-default',
             }
         },
         created : function () {
@@ -218,64 +220,33 @@
             total : function () {
                 var fuck = 0;
                 $.each(this.ctpnk, function () {
-                    var result =this.qty * this.price;
-                    var discount = result/100 * this.discount;
-                    result -= discount;
-                    var tax = result/100 * this.tax;
-                    //return result + tax;
-                    fuck += result + tax;
+                    fuck += this.qty * this.price;
                 });
                 return fuck;
             },
         },
         methods : {
             fetchData : function () {
+                this.$Progress.start();
                 this.$http.get('api/quote/' + this.$route.params.id).then(function (response) {
-//                    console.log(response.body)
-                    this.me = response.body.data;
+                    this.$Progress.finish();
+                    this.me = response.body;
                     this.user = this.me.user;
                     this.type = this.me.type;
-                    this.list_products = this.me.products;
                     this.ctpnk = this.me.order_detail;
                     this.customer = this.me.customer;
-
-                    // next and previous id
-                    this.nextId = response.body.nextId;
-                    this.previousId = response.body.previousId;
+                    this.btn = 'btn btn-' + this.type.label.split(" ")[1].split("-")[1];
                 }, function (response) {
                     if (response.status == 404)
                         ;
+                    this.$Progress.fail();
                 })
             },
-
-            subtotalItem : function (item) {
-                var result =item.qty * item.price;
-                var discount = result/100 * item.discount;
-                result -= discount;
-                var tax = result/100 * item.tax;
-                return result + tax;
-            },
-
-            setToCancel : function () {
-                this.$http.put('api/quote/' + this.$route.params.id, {'setToCancel' : true}).then(function (response) {
+            setStatus : function (status) {
+                this.$http.put('api/quote/' + this.$route.params.id, {'status' : true}).then(function (response) {
                     this.notify('Success!', 'success', 'Updated!!!');
                     this.type = response.body;
-                }, function (response) {
-                    console.log(response.body);
-                });
-            },
-            setToQuote : function () {
-                this.$http.put('api/quote/' + this.$route.params.id, {'setToQuote' : true}).then(function (response) {
-                    this.notify('Success!', 'success', 'Updated!!!');
-                    this.type = response.body;
-                }, function (response) {
-                    console.log(response.body);
-                });
-            },
-            setToOrder : function () {
-                this.$http.put('api/quote/' + this.$route.params.id, {'setToOrder' : true}).then(function (response) {
-                    this.notify('Success!', 'success', 'Updated!!!');
-                    this.type = response.body;
+                    this.btn = 'btn btn-' + this.type.label.split(" ")[1].split("-")[1];
                 }, function (response) {
                     console.log(response.body);
                 });
@@ -308,6 +279,7 @@
                         enter: 'animated bounceInDown',
                         exit: 'animated bounceOutUp'
                     },
+
 
                 });
             },

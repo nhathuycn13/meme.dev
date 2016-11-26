@@ -35,56 +35,64 @@
                         <div class="box-header with-border">
                             <h3 class="box-title">Danh Sách Báo Gía</h3>
 
-                            <div class="box-tools pull-right">
+                            <form class="box-tools pull-right" @submit.prevent="search">
                                 <div class="has-feedback">
-                                    <input type="text" class="form-control input-sm" placeholder="Search Quote">
+                                    <input v-model="keyword" type="text" class="form-control input-sm" placeholder="Tìm kiếm">
                                     <span class="fa fa-search form-control-feedback"></span>
                                 </div>
-                            </div>
+                            </form>
                             <!-- /.box-tools -->
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body no-padding">
                             <div class="mailbox-controls">
-                                <!-- Check all button -->
-                                <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i>
-                                </button>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
-                                </div>
-                                <!-- /.btn-group -->
-                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
+                                <button @click="fetchData(data.current_page)" type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
                                 <div class="pull-right">
+                                    <form @submit.prevent="fetchData(data.current_page)" class="form-inline form-group">
+                                        <label style="font-weight: 100;">Hiển thị</label>
+                                        <input v-model="data.per_page" type="text" class="form-control" style="width: 50px;">
+                                        <label style="font-weight: 100;">dòng</label>
+                                    </form>
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
-                                        <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                        <button v-if="data.prev_page_url" @click="fetchData(data.current_page - 1)" type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
+                                        <button v-if="data.next_page_url" @click="fetchData(data.current_page + 1)" type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
                                     </div>
                                     <!-- /.btn-group -->
                                 </div>
+                                <!-- Check all button -->
+                                <button @click="checkAll" type="button" class="btn btn-default btn-sm checkbox-toggle"><i :class="[ isSelectAll ? 'fa fa-square-o' : 'fa fa-check-square-o']"></i>
+                                </button>
+                                <div class="btn-group">
+                                    <button v-if="isCheck" @click="deleteMulti" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
+                                </div>
+                                <!-- /.btn-group -->
                                 <!-- /.pull-right -->
                             </div>
                             <div class="table-responsive mailbox-messages">
-                                <table class="table table-striped table-hover">
+                                <div v-show="loading.refresh" class="overlay">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                </div>
+                                <table class="table table-hover">
                                     <tr>
                                         <th></th>
                                         <th>Id</th>
                                         <th>Khách hàng</th>
                                         <th>Nhân viên</th>
                                         <th>Thời gian</th>
-                                        <th></th>
+                                        <th class="pull-right"></th>
                                     </tr>
 
-                                    <tr v-for="type in items">
-                                        <td><input type="checkbox"></td>
-                                        <td><router-link :to="{ name:'view', params : { id : type.id} }">SO{{ getId(type.id) }}</router-link></td>
-                                        <td>{{type.customer.name}}</td>
-                                        <td>{{type.user.name}}</td>
-                                        <td><timeago class="mailbox-date" :since="type.created_at" :auto-update="60"></timeago></td>
-                                        <td class="pull-right">
+                                    <tr v-for="item in items">
+                                        <td>
+                                            <input @click="checkMe(item)" type="checkbox" :id="item.id">
+                                        </td>
+                                        <td><router-link :to="{ name:'view', params : { id : item.id} }">Q{{ getId(item.id) }}</router-link></td>
+                                        <td><router-link :to="{ name:'view', params : { id : item.id} }">{{ item.customer.name }}</router-link></td>
+                                        <td><router-link :to="{ name:'view', params : { id : item.id} }">{{ item.user.name }}</router-link></td>
+                                        <td>
                                             <div class="btn-group">
-                                                <router-link :to="{ name: 'update', params: { id : type.id} }"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></router-link>
-                                                <router-link :to="{ name: 'view', params: { id : type.id} }"><i class="fa fa-eye" aria-hidden="true"></i></router-link>
-                                                <a type="button" @click.prevent="deleteItem(type.id)"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                <router-link :to="{ name: 'update', params: { id : item.id} }"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></router-link>
+                                                <a href="#" type="button" @click.prevent="deleteItem(item.id)"><i class="fa fa-trash" aria-hidden="true"></i></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -96,19 +104,19 @@
                         <!-- /.box-body -->
                         <div class="box-footer no-padding">
                             <div class="mailbox-controls">
+                                <button @click="fetchData(data.current_page)" type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
                                 <!-- Check all button -->
-                                <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i>
+                                <button @click="checkAll" type="button" class="btn btn-default btn-sm checkbox-toggle"><i :class="[ isSelectAll ? 'fa fa-square-o' : 'fa fa-check-square-o']"></i>
                                 </button>
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
+                                    <button v-if="isCheck" @click="deleteMulti" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
                                 </div>
                                 <!-- /.btn-group -->
-                                <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
                                 <div class="pull-right">
-                                    1-50/200
+                                    {{ data.from }}-{{ data.to }}/{{ data.total }}
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
-                                        <button type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                        <button v-if="data.prev_page_url" @click="fetchData(data.current_page - 1)" type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
+                                        <button v-if="data.next_page_url" @click="fetchData(data.current_page + 1)" type="button" class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
                                     </div>
                                     <!-- /.btn-group -->
                                 </div>
@@ -123,39 +131,67 @@
             <!-- /.row -->
         </section>
     </div>
-
 </template>
 <script>
     export default{
         data : function () {
             return {
-                items : []
+                data : {},
+                items : [],
+                keyword : '',
+                selected : [],
+                isSelectAll : false,
+                loading : {
+                    refresh : false,
+                },
             };
         },
         created: function () {
-            this.fetchData();
+            this.fetchData(1);
+        },
+        computed : {
+            isCheck : function () {
+                return this.selected.length > 0;
+            },
         },
         methods : {
-            fetchData : function () {
+            fetchData : function (page) {
                 this.$Progress.start();
-                this.$http.get('api/quote').then(function (response) {
-                    this.items = response.body;
-                    this.$Progress.finish()
-                }, function (response) {
-                    this.$Progress.fail()
+                this.$http.get('api/quote', { params : { page : page, perpage : this.data.per_page}}).then(function (response) {
+                    this.data = response.body;
+                    this.items = this.data.data,
+                            this.$Progress.finish();
+                }, function () {
+                    this.$Progress.fail();
                 });
             },
             deleteItem : function (id) {
-                var confirm = window.confirm("Are you sure?");
+                var confirm = window.confirm("Bạn có chắc muốn xóa?");
                 if (!confirm) return;
                 this.$Progress.start();
                 this.$http.delete('api/quote/' + id).then(function (response) {
-                    this.$Progress.finish();
                     if (response.body == '1'){
                         this.notify('Deleted', 'success', '');
                         this.fetchData();
+                        this.$Progress.finish();
                     }
-                }, function (response) {
+                }, function () {
+                    this.notify('Error', 'danger', '');
+                    this.$Progress.fail();
+                });
+            },
+            deleteMulti : function (id) {
+                var confirm = window.confirm("Bạn có chắc muốn xóa?");
+                if (!confirm) return;
+                this.$Progress.start();
+                this.$http.delete('api/quote/0', {params : {ids : this.selected}}).then(function (response) {
+                    if (response.body > 0){
+                        //                    todoHuy: viet hoa this, notify
+                        this.notify('Deleted', 'success', '');
+                        this.fetchData(1);
+                        this.$Progress.finish();
+                    }
+                }, function () {
                     this.notify('Error', 'danger', '');
                     this.$Progress.fail();
                 });
@@ -163,6 +199,42 @@
             getId : function (n) {
                 n = n + '';
                 return n.length >= 5 ? n : new Array(5 - n.length + 1).join('0') + n;
+            },
+            search : function () {
+                this.$Progress.start();
+                this.$http.post('api/manufacturer/search', { keyword : this.keyword}).then(function (response) {
+                    console.log(response.body);
+                    this.$Progress.finish();
+                }, function (response) {
+                    console.log(response.body);
+                    this.$Progress.fail();
+                });
+            },
+            checkAll : function(){
+                if (this.selected.length === this.items.length){
+                    this.selected = new Array();
+                    this.isSelectAll = false;
+
+                    this.items.forEach(function (item) {
+                        document.getElementById(item.id).checked = false;
+                    })
+                }else{
+                    this.isSelectAll = true;
+                    var meme = this.selected;
+                    this.items.forEach(function (item) {
+                        document.getElementById(item.id).checked = true;
+                        if (!meme.includes(item.id))
+                            meme.push(item.id);
+                    })
+                }
+            },
+            checkMe : function(item){
+                if (this.selected.includes(item.id)){
+                    var i = this.selected.indexOf(item.id);
+                    this.selected.splice(i, 1);
+                }else{
+                    this.selected.push(item.id);
+                }
             },
             notify : function(title, type, text) {
                 $.notify({
@@ -186,3 +258,4 @@
         }
     }
 </script>
+

@@ -19,8 +19,6 @@ class CreateOrderDetailsTable extends Migration
             $table->unsignedInteger('product_id');
             $table->float('price');
             $table->unsignedInteger('qty')->default(1);
-            $table->float('discount')->default(0);
-            $table->float('tax');
             $table->string('description')->nullable();
         });
     }

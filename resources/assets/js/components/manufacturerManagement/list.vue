@@ -185,6 +185,7 @@
                 this.$Progress.start();
                 this.$http.delete('api/manufacturer/0', {params : {ids : this.selected}}).then(function (response) {
                     if (response.body > 0){
+                        //                    todoHuy: viet hoa this, notify
                         this.notify('Deleted', 'success', '');
                         this.fetchData(1);
                         this.$Progress.finish();
@@ -234,7 +235,6 @@
                     this.selected.push(item.id);
                 }
             },
-
             notify : function(title, type, text) {
                 $.notify({
                     title : '<i class="fa fa-times" aria-hidden="true"></i> <strong>' + title + '</strong>',

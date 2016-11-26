@@ -14,6 +14,9 @@ use App\Repository\ParentRepo;
 
 class PaymentEloquent implements PaymentRepo
 {
+    /**
+     * @var PaymentType
+     */
     private $payment;
 
     /**
@@ -28,7 +31,7 @@ class PaymentEloquent implements PaymentRepo
 
     public function create($attributes)
     {
-        // TODO: Implement create() method.
+
     }
 
     public function update($id, $attribute)

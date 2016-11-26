@@ -44,6 +44,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+//        todoHuy: viet + validate
         $messages = [
             '.' => '',
             '.' => '',
@@ -107,6 +108,6 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-        return $this->customer->delete($id);
+        return $id == 0 ? $this->customer->delete(request('ids')) : $this->customer->delete($id);
     }
 }

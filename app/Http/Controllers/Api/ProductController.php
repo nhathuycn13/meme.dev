@@ -44,11 +44,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
+//        todoHuy : viet hoa this
         $messages = [
             'name.required' => 'Bạn chưa nhập tên',
             'code.required' => 'Bạn chưa nhập mã hàng',
             'type_id.required' => 'Bạn chưa chọn loại',
             'manufacturer_id.required' => 'Bạn chưa chọn nhà sản xuất',
+            'warranty.numeric' => 'Bạn chưa chọn nhà sản xuất',
+            'warranty.min' => 'Bạn chưa chọn nhà sản xuất',
 //            'thumbnail.image' => 'Ảnh không đúng',
         ];
         $this->validate($request, [
@@ -56,6 +60,7 @@ class ProductController extends Controller
             'code' => 'required',
             'type_id' => 'required',
             'manufacturer_id' => 'required',
+            'warranty' => 'numeric:min:0',
 //            'thumbnail' => 'image',
         ], $messages);
         return $this->product->create($request->toArray());
@@ -90,8 +95,12 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    //update 
     public function update(Request $request, $id)
     {
+
+        // todoHuy: validate this
         $this->validate($request, [
 
         ]);
@@ -106,7 +115,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        return $this->product->delete($id);
+        return $id == 0? $this->product->delete(request('ids')) : $this->product->delete($id);
     }
 
     public function search(Request $request)

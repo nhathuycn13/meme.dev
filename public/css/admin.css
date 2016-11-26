@@ -4626,8 +4626,6 @@ table th[class*="col-"] {
   background-color: #ebcccc;
 }
 .table-responsive {
-  width: 100%;
-  padding: 15px 30px;
   overflow-x: auto;
   min-height: 0.01%;
 }

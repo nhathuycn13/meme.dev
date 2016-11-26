@@ -37,6 +37,10 @@
                         <dt>Nhà Sản Xuất</dt>
                         <dd>{{ form.manufacturer.name }}</dd>
 
+                        <!--todoHuy: viet hoa this-->
+                        <dt v-if="form.warranty != 0">BH</dt>
+                        <dd v-if="form.warranty != 0">{{ form.warranty }} thang</dd>
+
                     </dl>
                 </div>
                 <div class="col-sm-4">
@@ -89,12 +93,22 @@
                 return n.length >= 5 ? n : new Array(5 - n.length + 1).join('0') + n;
             },
             deleteMe : function () {
-                var result = window.confirm('Bạn có chắc muốn xóa?');
-                if(!result) return;
-
+                var confirm = window.confirm("Bạn có chắc muốn xóa?");
+                if (!confirm) return;
+                this.$Progress.start();
+                this.$http.delete('api/product/' + this.form.id).then(function (response) {
+                    if (response.body == '1'){
+                        this.notify('Deleted', 'success', '');
+                        this.$router.push({ name: 'list'})
+                        this.$Progress.finish();
+                    }
+                }, function () {
+                    this.notify('Error', 'danger', '');
+                    this.$Progress.fail();
+                });
             },
             updateMe : function () {
-                router.push({ name: 'update', params: { id: this.form.id }})
+                this.$router.push({ name: 'update', params : { id : this.$route.params.id}})
             },
             notify : function(title, type, text) {
                 $.notify({

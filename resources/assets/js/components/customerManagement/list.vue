@@ -183,11 +183,11 @@
                 var confirm = window.confirm("Bạn có chắc muốn xóa?");
                 if (!confirm) return;
                 this.$Progress.start();
-                this.$http.delete('api/customer').then(function (response) {
-                    console.log(response.body);
-                    if (response.body == '1'){
+                this.$http.delete('api/product/0', {params : {ids : this.selected}}).then(function (response) {
+                    if (response.body > 0){
+                        //                    todoHuy: viet hoa this, notify
                         this.notify('Deleted', 'success', '');
-                        this.fetchData();
+                        this.fetchData(1);
                         this.$Progress.finish();
                     }
                 }, function () {

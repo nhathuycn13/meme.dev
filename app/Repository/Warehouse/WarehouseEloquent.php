@@ -36,22 +36,9 @@ class WarehouseEloquent implements WarehouseRepo
      * @param $attributes
      * @return mixed
      */
-    public function create($attributes)
+    public function create($products)
     {
-        if (is_array($attributes)){
-            return $this->warehouse->create($attributes);
-        }else{
-            $products = PNK::findOrFail($attributes)->CTPNKs;
-            foreach ($products as $product){
-                $temp = $this->warehouse->where('product_id', $product->product_id)->where('price', $product->price)->first();
-                if (isset($temp)){
-                    $temp->qty += $product->qty;
-                    $temp->save();
-                    return 'meme';
-                }
-                $this->warehouse->create($product->toArray());
-            }
-        }
+        
     }
 
     /**
@@ -82,6 +69,10 @@ class WarehouseEloquent implements WarehouseRepo
         // TODO: Implement get() method.
     }
 
+    public function paginate($perpage, $column = array('*'))
+    {
+        return $this->warehouse->with(['product'])->paginate($perpage, $column);
+    }
 
 
 }

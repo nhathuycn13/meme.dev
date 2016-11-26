@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    public $fillable = ['customer_id', 'order_type_id', 'shipping', 'description', 'payment_type_id', 'invoiced', 'user_id'];
+    public $fillable = ['customer_id', 'order_status', 'description', 'tax', 'payment_type_id', 'invoice_id', 'user_id', 'isOrder'];
 
     public function customer()
     {
@@ -20,7 +20,7 @@ class Order extends Model
     }
 
     public function type(){
-        return $this->belongsTo(OrderType::class, 'order_type_id');
+        return $this->belongsTo(OrderStatus::class, 'order_status');
     }
 
     public function orderDetail()

@@ -64,7 +64,7 @@
                                 <button @click="checkAll" type="button" class="btn btn-default btn-sm checkbox-toggle"><i :class="[ isSelectAll ? 'fa fa-square-o' : 'fa fa-check-square-o']"></i>
                                 </button>
                                 <div class="btn-group">
-                                    <button v-if="isCheck" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
+                                    <button v-if="isCheck" @click="deleteMulti" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
                                 </div>
                                 <!-- /.btn-group -->
                                 <!-- /.pull-right -->
@@ -119,7 +119,7 @@
                                 <button @click="checkAll" type="button" class="btn btn-default btn-sm checkbox-toggle"><i :class="[ isSelectAll ? 'fa fa-square-o' : 'fa fa-check-square-o']"></i>
                                 </button>
                                 <div class="btn-group">
-                                    <button v-if="isCheck" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
+                                    <button v-if="isCheck" @click="deleteMulti" type="button" class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
                                 </div>
                                 <!-- /.btn-group -->
                                 <div class="pull-right">
@@ -189,6 +189,23 @@
                     if (response.body == '1'){
                         this.notify('Deleted', 'success', '');
                         this.fetchData();
+                        this.$Progress.finish();
+                    }
+                }, function () {
+//                    todoHuy: viet hoa this, notify
+                    this.notify('Error', 'danger', '');
+                    this.$Progress.fail();
+                });
+            },
+            deleteMulti : function (id) {
+                var confirm = window.confirm("Bạn có chắc muốn xóa?");
+                if (!confirm) return;
+                this.$Progress.start();
+                this.$http.delete('api/product/0', {params : {ids : this.selected}}).then(function (response) {
+                    if (response.body > 0){
+                        //                    todoHuy: viet hoa this
+                        this.notify('Deleted', 'success', '');
+                        this.fetchData(1);
                         this.$Progress.finish();
                     }
                 }, function () {

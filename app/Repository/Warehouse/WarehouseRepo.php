@@ -16,4 +16,5 @@ interface WarehouseRepo
     public function update($id, $attribute);
     public function delete($id);
     public function get($id);
+    public function paginate($perpage, $column = array('*'));
 }

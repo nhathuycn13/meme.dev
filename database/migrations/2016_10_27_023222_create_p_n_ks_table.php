@@ -16,13 +16,13 @@ class CreatePNKsTable extends Migration
         
         Schema::create('PNK', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('status_id')->defautl(1);
+            $table->unsignedInteger('NK_status_id')->defautl(1);
             $table->unsignedInteger('user_id');
             $table->string('description')->nullable();
-            $table->string('shipping')->default(0);
-            $table->unsignedInteger('tax')->default(0);
+//            $table->string('shipping')->default(0);
+//            $table->unsignedInteger('tax')->default(0);
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('status_id')->references('id')->on('status');
+            $table->foreign('NK_status_id')->references('id')->on('NK_status');
 
             $table->timestamps();
         });

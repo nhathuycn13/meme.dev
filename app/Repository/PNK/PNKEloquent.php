@@ -10,18 +10,24 @@ namespace App\Repository\PNK;
 
 
 use App\Model\CTPNK;
+use App\Model\NK_Status;
 use App\Model\PNK;
 use App\Model\Status;
+use App\Model\Warehouse;
 use App\User;
 use Auth;
+use App\Http\Requests;
+use Illuminate\Http\Request;
+
 class PNKEloquent implements PNKrepo
 {
     private $pnk, $ctpnk, $warehouse;
 
-    public function __construct(PNK $p, CTPNK $CTPNK)
+    public function __construct(PNK $p, CTPNK $CTPNK, Warehouse $warehouse)
     {
         $this->pnk = $p;
         $this->ctpnk = $CTPNK;
+        $this->warehouse = $warehouse;
     }
 
     /**
@@ -37,22 +43,19 @@ class PNKEloquent implements PNKrepo
      * @param $attributes
      * @return mixed
      */
-    public function create($attributes)
+    public function create(Request $attributes)
     {
-        $user = User::find($attributes->user()->id);
-        $pnk = $user->PNKs()->save(new PNK([
-            'status_id' => $attributes->status_id,
-            'tax' => $attributes->tax,
-            'shipping' => $attributes->shipping,
-            'description' => $attributes->description,
-        ]));
+        $meme = $attributes->user()->PNKs()->save(new PNK($attributes->toArray()));
+        $ctpnk = [];
         foreach ($attributes->rows as $row){
-            if (($row['product_id']) > 0)
+            if (($row['product_id']['id']) > 0)
             {
-                $pnk->CTPNKs()->save(new CTPNK($row));
+                $row['product_id'] = $row['product_id']['id'];
+                $ctpnk[] = $row;
+                $meme->CTPNKs()->save(new CTPNK($row));
             }else continue;
         }
-        return route('nkManagement') + '#/view/' + $pnk->id;
+        return response(route('nkManagement') + '#/view/' + $meme->id);
     }
 
     /**
@@ -83,27 +86,41 @@ class PNKEloquent implements PNKrepo
      */
     public function get($id)
     {
-        return ($this->pnk->with('user', 'status', 'CTPNKs', 'products')->findOrFail($id));
+        return ($this->pnk->with('user', 'status', 'CTPNKs.product')->findOrFail($id));
     }
 
     /**
      * @param $status
      * @return mixed
      */
-    public function setStatus($idPNK, $status)
+    public function setStatus($idPNK, $request)
     {
-        $flag = $this->pnk->findOrFail($idPNK);
-        $flag->status_id = $status;
-        if ($status == 3){
-            $this->nk();
+        $meme = $this->pnk->findOrFail($idPNK);
+        if ($request->setStatus == 3){
+            foreach ($meme->CTPNKs as $product) {
+                $temp = $this->warehouse->where('product_id', $product->product_id)->where('price', $product->price)->first();
+                if (isset($temp)){
+                    $temp->update([
+                        'qty' => $temp->qty + $product->qty,
+                    ]);
+                }else{
+                    $this->warehouse->create($product->toArray());
+                }
+            }
         }
-        if ($flag->save()){
-            return Status::find($status);
-        }
+        $flag = $meme->update([
+            'NK_status_id' => $request->setStatus,
+        ]);
+        if ($flag){
+            return NK_Status::find($meme->NK_status_id);
+        }else
+            return response('Error', 502);
     }
 
-    public function nk()
+    public function paginate($perpage, $column = ['*'])
     {
-
+        return $this->pnk->with(['user', 'status'])->paginate($perpage, $column);
     }
+
+
 }

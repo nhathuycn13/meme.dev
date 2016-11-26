@@ -14,6 +14,9 @@ Route::group(['middleware' => 'auth'], function (){
 
         Route::get('type/search/{query}', 'SearchController@searchType');
         Route::get('manufacturer/search/{query}', 'SearchController@searchManufacturer');
+        Route::get('product/search/{query}', 'SearchController@searchProduct');
+        Route::get('product/nk/{query}', 'SearchController@searchNK');
+        Route::get('customer/search/{query}', 'SearchController@searchCustomer');
 
 
         Route::resource('type', 'TypeController');
@@ -33,7 +36,7 @@ Route::group(['middleware' => 'auth'], function (){
         Route::group(['namespace' => 'Warehouse'], function (){
             Route::resource('warehouse', 'WarehouseController');
             Route::resource('nk', 'PNKController');
-            Route::resource('status_nk', 'StatusNKController');
+            //Route::resource('status_nk', 'StatusNKController');
         });
     });
 //    Route::get('test', 'TestController@index');

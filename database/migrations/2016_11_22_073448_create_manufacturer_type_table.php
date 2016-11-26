@@ -26,6 +26,6 @@ class CreateManufacturerTypeTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('manufacturer_type');
     }
 }

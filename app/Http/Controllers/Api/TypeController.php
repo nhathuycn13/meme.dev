@@ -103,6 +103,6 @@ class TypeController extends Controller
      */
     public function destroy($id)
     {
-        return $this->type->delete($id);
+        return $id == 0? $this->type->delete(request('ids')) : $this->type->delete($id);
     }
 }

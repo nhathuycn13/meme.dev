@@ -8,7 +8,7 @@ use Auth;
 class PNK extends Model
 {
     public $table = 'PNK';
-    protected $fillable = ['status_id', 'user_id', 'tax', 'shipping', 'description'];
+    protected $fillable = ['NK_status_id', 'user_id', 'tax', 'shipping', 'description'];
 
     public function CTPNKs()
     {
@@ -22,7 +22,7 @@ class PNK extends Model
 
     public function status()
     {
-        return $this->belongsTo(Status::class);
+        return $this->belongsTo(NK_Status::class, 'NK_status_id');
     }
 
     public function products()
